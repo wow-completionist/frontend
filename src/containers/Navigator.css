@@ -1,0 +1,38 @@
+body {
+    background-color: black;
+}
+
+.Navigator ul {
+    list-style: none;
+    width: 100%;
+    text-align: center;
+    background-color: darkred;
+    height: 2.2rem;
+    padding-top: .2rem;
+}
+
+.Navigator li {
+    display: inline-block;
+    margin: 2px;
+}
+
+.Navigator a {
+    text-decoration: none;
+    color: black;
+    background-color: darkgrey;
+    padding: .2rem;
+    margin: 1rem;
+    border-radius: 2px;
+}
+
+.Navigator a:hover,
+.Navigator a:active {
+    background-color: rgb(54, 2, 2);
+    color: gray;
+}
+
+.Navigator a.my-active-link {
+    background-color: goldenrod;
+    color: black;
+}
+

@@ -1,0 +1,19 @@
+.CreateSets {
+    margin: 2rem;
+
+}
+
+.formLabel {
+    color: white;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+button {
+    margin-top: 2.3rem;
+    padding: .5rem;
+    background-color: green;
+    color: white;
+    border-radius: 5px;
+    
+}

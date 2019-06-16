@@ -1,0 +1,14 @@
+
+.visual-panel {
+    background-color: #343a40;
+    color: white;
+}
+
+.visual-meta {
+    padding: 1rem;
+}
+
+.visual-name {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}

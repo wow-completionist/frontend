@@ -1,0 +1,24 @@
+.EditSets {
+    margin: 2rem;
+}
+
+.green {
+    background-color: greenyellow
+}
+
+
+.editFormLabel {
+    color: white;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+.setPanel {
+    background-color: #343a40;
+    color: white;
+}
+
+.panelData {
+    border-top: 1px solid #454d55;
+    padding: 1rem;
+}
