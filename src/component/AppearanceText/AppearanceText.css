@@ -1,7 +1,18 @@
+.item-row {
+    border-bottom: rgb(67, 67, 67) 1px solid;
+}
+
 .collected {
     background-color: green;
     color: black;
-    border-radius: 3px;
+    border-radius: 2px;
     margin: 1px;
-    padding: 1px;
+    padding: .5px .5rem;
+}
+
+.invisible-button {
+    background: transparent;
+    border: none !important;
+    margin: 0;
+    padding: 0;
 }

@@ -1,75 +1,122 @@
+/* eslint-disable no-console */
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
-import ReactTooltip from 'react-tooltip'
+import PropTypes from 'prop-types';
 
+import ReactTooltip from 'react-tooltip';
 import './AppearanceText.css';
 
 const AppearanceText = (props) => {
-    if (!props.visualIdHash) return '';
+  const {
+    visualMetaForSlot,
+    categoryID,
+    fetchNameForItem,
+    navigateToVisualEdit,
+    removeVisualFromSet,
+    actions,
+    emptyClick,
+    tabIndex,
+  } = props;
 
-    if (!props.visualIDs || !props.categoryID) {
-        console.error(`Missing data in AppearanceText: categoryID:${props.categoryID} visualIDs:${props.visualIDs}`)
-        return '';
-    }
-
-    const workingSet = [];
-    props.visualIDs.forEach(visualID => {
-        if (props.visualIdHash[visualID]) {
-            props.visualIdHash[visualID].visualID = visualID;
-            workingSet.push(props.visualIdHash[visualID]);
-        }
-    })
-
-    const filtered = workingSet.filter(source => source.categoryID === props.categoryID);
-
-    if (filtered.length > 1) {
-        console.log(`WARNING - Multiple Entries for ${props.slot}: ${filtered}`)
-    }
-
-    if (filtered.length === 0) return (
-        <div>{props.categoryID}:</div>
-    );
-
-    const appearanceMeta = filtered[0];
-    console.log('--> appearanceMeta :', appearanceMeta);
-
-    const visualCollectedState = (appearanceMeta.collected ? " collected" : "");
-
+ 
+  if (Object.keys(visualMetaForSlot).length === 0) {
     return (
+      <div className="row">
         <div 
-            data-tip data-for={"visual" + appearanceMeta.visualID} 
-            style={{width:"auto"}}
+          className="col-12"
+          role="button"
+          onClick={() => emptyClick()}
+          onKeyPress={() => { }}
+          tabIndex={tabIndex}
         >
-            <ReactTooltip id={"visual" + appearanceMeta.visualID} place="right" type="dark" effect="float">
-                {appearanceMeta.sources.map(source => {
-                    if(!source.name) props.fetchNameForItem(source.sourceID);
-                    const itemCollectedState = source.isCollected ? "collected" : "";
-                    return (
-                        <div key={source.sourceID} className={itemCollectedState}>
-                            {source.name} ({source.itemID}) {source.isCollected ? "★" : ""}
-                        </div>
-                    );
-                })}
-            </ReactTooltip>
-            <div className="row">
-                <div className="col-3">
-                    {props.categoryID}:
-                </div>
-                <div className={visualCollectedState}>
-                    {appearanceMeta.name} 
-                </div>
-                <div>
-                    <span 
-                        role="img" 
-                        className="rename-appearance"
-                        aria-label="change appearance name"
-                        onClick = {() => props.handleClick(appearanceMeta.visualID)}
-                    >
-                        &nbsp;⚀
-                    </span>
-                </div>
-            </div>
+          {`${categoryID}:`}
         </div>
-    )
+      </div>
+    );
+  }
+
+    const handleKeyPress = (event) => {
+    // TODO: Implement keyboard accessibility
+    console.log(`Key pressed: '${event.key}'`);
+  };
+
+  const visualCollectedState = (visualMetaForSlot.isCollected ? ' collected' : '');
+  let tooltip = '';
+  if (visualMetaForSlot && visualMetaForSlot.sources) {
+    tooltip = (
+      <ReactTooltip id={`visual${visualMetaForSlot.visualID}`} place="right" type="dark" effect="float">
+        {visualMetaForSlot.sources.map((source) => {
+          if (!source.name) fetchNameForItem(source.sourceID);
+          const itemCollectedState = source.isCollected ? 'collected' : '';
+          return (
+            <div key={source.sourceID} className={itemCollectedState}>
+              {`${source.name}(${source.itemID})`}
+            </div>
+          );
+        })}
+      </ReactTooltip>
+    );
+  }
+  return (
+    <div
+      data-tip
+      data-for={`visual${visualMetaForSlot.visualID}`}
+      className="item-row"
+    >
+      {tooltip}
+      <div className="row">
+        <div className="col-3">
+          {`${categoryID}:`}
+        </div>
+        <div className={visualCollectedState}>
+          {visualMetaForSlot.name}
+        </div>
+        <div style={actions ? { display: 'block' } : { display: 'none' }}>
+          <button
+            type="button"
+            className="invisible-button"
+            onClick={() => navigateToVisualEdit(visualMetaForSlot.visualID)}
+            onKeyPress={handleKeyPress}
+          >
+            <span
+              role="img"
+              className="rename-appearance"
+              aria-label="change appearance name"
+            >
+                &nbsp;⥃
+            </span>
+          </button>
+          <button
+            type="button"
+            className="invisible-button"
+            onClick={() => removeVisualFromSet(visualMetaForSlot.visualID)}
+            onKeyPress={handleKeyPress}
+          >
+            <span
+              role="img"
+              className="rename-appearance"
+              aria-label="change appearance name"
+            >
+                &nbsp;⊗
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
+
+AppearanceText.propTypes = {
+  actions: PropTypes.bool.isRequired,
+  tabIndex: PropTypes.number.isRequired,
+  categoryID: PropTypes.string.isRequired,
+  visualMetaForSlot: PropTypes.object,
+  emptyClick: PropTypes.func.isRequired,
+  fetchNameForItem: PropTypes.func.isRequired,
+  removeVisualFromSet: PropTypes.func.isRequired,
+  navigateToVisualEdit: PropTypes.func.isRequired,
+};
+
+AppearanceText.defaultProps = { visualMetaForSlot: {} };
 
 export default AppearanceText;

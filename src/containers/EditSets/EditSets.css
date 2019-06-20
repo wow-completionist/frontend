@@ -22,3 +22,9 @@
     border-top: 1px solid #454d55;
     padding: 1rem;
 }
+
+.selected {
+    border: 2px solid yellow;
+    margin: 2rem;
+    font-size: 2rem;
+}
