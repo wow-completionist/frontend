@@ -108,7 +108,7 @@ const AppearanceText = (props) => {
 
 AppearanceText.propTypes = {
   actions: PropTypes.bool.isRequired,
-  tabIndex: PropTypes.number.isRequired,
+  tabIndex: PropTypes.number,
   categoryID: PropTypes.string.isRequired,
   visualMetaForSlot: PropTypes.object,
   emptyClick: PropTypes.func.isRequired,
@@ -117,6 +117,9 @@ AppearanceText.propTypes = {
   navigateToVisualEdit: PropTypes.func.isRequired,
 };
 
-AppearanceText.defaultProps = { visualMetaForSlot: {} };
+AppearanceText.defaultProps = {
+  visualMetaForSlot: {},
+  tabIndex: null
+};
 
 export default AppearanceText;
