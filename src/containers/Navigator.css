@@ -36,3 +36,7 @@ body {
     color: black;
 }
 
+.short {
+    margin: 0 1rem;
+    padding: 0 1rem;
+}

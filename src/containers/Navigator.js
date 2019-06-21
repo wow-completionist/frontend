@@ -11,12 +11,15 @@ import CreateSets from './CreateSets/CreateSets';
 import EditSets from './EditSets/EditSets';
 import EditVisual from './EditVisual/EditVisual';
 import Scraper from './Scraper/Scraper';
+import Login from './Login/Login';
 // import NewPost from './NewPost/NewPost';
 // import FullPost from './FullPost/FullPost';
 
 import './Navigator.css';
 
 class Navigator extends Component {
+  state={ showLogin: false }
+
   async componentDidMount() {
     const {
       transmogSetList,
@@ -25,7 +28,7 @@ class Navigator extends Component {
       fullSourceIDList,
       addScrapedData,
       loadUserData,
-      visualMetaHash
+      visualMetaHash,
     } = this.props;
 
     // Since the Navigator is the main window, we must load the initial state here
@@ -70,8 +73,14 @@ class Navigator extends Component {
         });
     }
   }
+  
+  toggleModal = () => {
+    const { showLogin } = this.state;
+    this.setState({ showLogin: !showLogin });
+  }
 
   render() {
+    const { showLogin } = this.state;
     return (
       <div className="Navigator">
         <header>
@@ -104,6 +113,15 @@ class Navigator extends Component {
                   Scraper
                 </NavLink>
               </li>
+              <li>
+                <button 
+                  type="button"
+                  className="btn btn-primary short"
+                  onClick={this.toggleModal}
+                >
+                  Login
+                </button>
+              </li>
             </ul>
           </nav>
         </header>
@@ -117,7 +135,12 @@ class Navigator extends Component {
           <Route path="/scraper" exact component={Scraper} />
           {/* <Route path="/post/:id" exact component={FullPost} /> */}
         </Switch>
-
+        <div className={`container ${showLogin ? 'modal-open' : ''}`}>
+          <Login 
+            toggle={this.toggleModal}
+            showModal={showLogin}
+          />
+        </div>
       </div>
     );
   }
