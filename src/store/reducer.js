@@ -1,4 +1,6 @@
 import * as actionTypes from './actions';
+import constants from '../constants';
+
 // import * as updateVisualMetaHash from './lib/buildVisualMetaHash';
 
 /**
@@ -12,11 +14,22 @@ import * as actionTypes from './actions';
  */
 
 const initialState = {
-    /** fullSourceIDList - Object
-     *      Key: sourceID 
-     *      Value: source data scraped from WoW API
+    /** sourceList - Array
+     *      List of source objects scraped from WoW API
      */
-    fullSourceIDList: {},
+    sourceList: [],
+
+    /** sourceIDHash - Object
+     *      Key: sourceID 
+     *      Value: item data indexed by sourceID including user's collection data
+     * 
+     *      Why create a hash? SourceIds are unique identifiers, making them perfect keys. And
+     *          using the sourceId, it is way easier to both look up and update a specific item,
+     *          guaranteeing only one will be in the list. So since the hash will be used every
+     *          time there's an update, why not keep it around and use it instead of creating
+     *          it and dumping it?
+     */
+    sourceIDHash: {},
 
     /**  transmogSetList - Array
      *      List of transmog sets or unofficial outfits.
@@ -30,160 +43,234 @@ const initialState = {
      */
     visualMetaHash: {},
 
-    /** collectedSources - Array
-     *      The account's collected sourceID list pulled from WoW API by Completionist Addon and
+    /** userData - Object
+     *      User info and collected sourceID list pulled from WoW API by Completionist Addon and
      *      imported into the website manually by the user.
      *      Each source returned from the API query will include the property "isCollected",
      *      which the addon uses to construct a list of collected sourceIDs.
      */
-    collectedSources: [],
+    userData: { characterData: [], collected: [] },
+    userCharacterData: [], // TODO: Only use userData instead of this
+
+    battleNetToken: null,
 };
 
-const updateVisualMetaHash = (fullSourceIDList, visualMetaHash, userCollectedSources) => {
+const updateVisualMetaHash = (sourceList, visualMetaHash, userCollectedSources = []) => {
     const workingVisualHash = { ...visualMetaHash };
-    
-    Object.values(fullSourceIDList).forEach((source) => {
+    sourceList.forEach((source) => {
         const { visualID } = source;
+        if (!visualID) {
+            return;
+        }
         if (!workingVisualHash[visualID]) {
             workingVisualHash[visualID] = { sources: [source] };
         } else if (!workingVisualHash[visualID].sources) {
             workingVisualHash[visualID].sources = [source];
         } else {
-            workingVisualHash[visualID].sources.push(source);
-            workingVisualHash[visualID].sources.sort((a, b) => ((b.name > (a.name || '')) ? 1 : -1));
+            const dupe = workingVisualHash[visualID]
+                .sources.find(i => i.sourceID === source.sourceID);
+            if (!dupe) {
+                workingVisualHash[visualID].sources.push(source);
+                workingVisualHash[visualID].sources.sort((a, b) => ((b.name > (a.name || '')) ? 1 : -1));
+            }
         }
-        if (source.isPrimary || (!workingVisualHash[visualID].name && source.name)) {
+
+        if (!workingVisualHash[visualID].name && source.name) {
             workingVisualHash[visualID].name = source.name;
+        }
+        if (!workingVisualHash[visualID].categoryID && source.categoryID) {
             workingVisualHash[visualID].categoryID = source.categoryID;
+        }
+        if (!workingVisualHash[visualID].isHideVisual && source.isHideVisual) {
             workingVisualHash[visualID].isHideVisual = source.isHideVisual;
+        }
+        if (userCollectedSources.includes(source.sourceID)) {
+            workingVisualHash[visualID].isCollected = true;
         }
     });
     
-    if (userCollectedSources.length > 0) {
-        userCollectedSources.forEach((sourceID) => {
-            const { visualID } = fullSourceIDList[sourceID];
-            workingVisualHash[visualID].isCollected = true;
-        });
-    }
-
     return workingVisualHash;
 };
 
 const reducer = (state = initialState, action) => {
-    let fullSourceIDList; 
-    let visualMetaHash; 
-    let transmogSetList;
-    let setIndex;
-    let visualIndex;
-
     switch (action.type) {
-        case actionTypes.ADD_SCRAPED_DATA:
-            // Convert scraped or loaded data to hash map
-            fullSourceIDList = Object.assign({}, state.fullSourceIDList, action.data);
-            // Create hash map of visualMeta
-            visualMetaHash = updateVisualMetaHash(
-                fullSourceIDList, 
+        case actionTypes.ADD_SOURCE_DATA: {
+            const workingSourceHash = { ...state.sourceIDHash };
+            const { collected } = state.userData;
+
+            const sourceList = action.data;
+
+            sourceList.forEach((source) => {
+                workingSourceHash[source.sourceID] = source;
+            });
+
+            collected.forEach((sourceID) => {
+                if (workingSourceHash[sourceID]) {
+                    workingSourceHash[sourceID].isCollected = true;
+                }
+            });
+
+            const newSourceList = Object.values(workingSourceHash);
+
+            const updatedVisualMetaHash = updateVisualMetaHash(
+                newSourceList, 
                 state.visualMetaHash, 
-                state.collectedSources
+                collected
             );
 
             return {
                 ...state,
-                fullSourceIDList,
-                visualMetaHash,
+                sourceList: newSourceList,
+                sourceIDHash: workingSourceHash,
+                visualMetaHash: updatedVisualMetaHash,
             };
+        }
 
-        case actionTypes.ADD_USER_DATA:
-            visualMetaHash = { ...state.visualMetaHash };
-            if (action.data.collected.length > 0) {
-                action.data.collected.forEach((sourceID) => {
-                    if (state.fullSourceIDList[sourceID]) {
-                        const { visualID } = state.fullSourceIDList[sourceID];
-                        visualMetaHash[visualID].isCollected = true;
-                    }
-                });
-            }
+        case actionTypes.ADD_USER_DATA: {
+            const workingSourceHash = { ...state.sourceIDHash };
+            const workingUserData = Object.assign({}, state.userData);
 
-            // Populate other user data variables here
-            return {
-                ...state,
-                visualMetaHash,
-                collectedSources: action.data.collected
-            };
+            console.log('--> ADD_USER_DATA action.data :', action.data);
+            workingUserData.collected = action.data;
 
-        case actionTypes.LOAD_VISUAL_META_DATA:
-            visualMetaHash = { ...state.visualMetaHash };
-            fullSourceIDList = { ...fullSourceIDList };
-            action.data.forEach((visualMeta) => {
-                if (!visualMetaHash[visualMeta.visualID]) {
-                    visualMetaHash[visualMeta.visualID] = visualMeta;
+            workingUserData.collected.forEach((sourceID) => {
+                if (workingSourceHash[sourceID]) {
+                    workingSourceHash[sourceID].isCollected = true;
                 }
             });
 
-            return {
-                ...state,
-                visualMetaHash
-            };
-
-        case actionTypes.ADD_TRANSMOG_SET:
-            transmogSetList = [action.data, ...state.transmogSetList];
+            const updatedVisualMetaHash = updateVisualMetaHash(
+                state.sourceList, 
+                state.visualMetaHash, 
+                workingUserData.collected
+            );
 
             return {
                 ...state,
-                transmogSetList
+                visualMetaHash: updatedVisualMetaHash,
+                userData: workingUserData,
+                sourceIDHash: workingSourceHash,
             };
+        }
 
-        case actionTypes.LOAD_TRANSMOG_SETS:
-            visualMetaHash = { ...state.visualMetaHash };
+        case actionTypes.UPDATE_VISUAL_META_DATA: {
+            const workingVisualMetaHash = { ...state.visualMetaHash };
+            action.data.forEach((visualMeta) => {
+                const combined = Object.assign(
+                    {}, 
+                    workingVisualMetaHash[visualMeta.visualID], 
+                    visualMeta
+                );
+                workingVisualMetaHash[visualMeta.visualID] = combined;
+            });
 
-            action.data.forEach((set) => {
-                set.visuals.forEach((visualID) => {
-                    if (!visualMetaHash[visualID]) visualMetaHash[visualID] = {};
-                    visualMetaHash[visualID].isAssigned = true;
+            return {
+                ...state,
+                visualMetaHash: workingVisualMetaHash
+            };
+        }
+
+        case actionTypes.ADD_TRANSMOG_SET: {
+            const workingTransmogSetList = [action.data, ...state.transmogSetList];
+
+            return {
+                ...state,
+                transmogSetList: workingTransmogSetList
+            };
+        }
+
+        case actionTypes.LOAD_TRANSMOG_SETS: {
+            const workingVisualMetaHash = { ...state.visualMetaHash };
+            const { transmogSetList } = state;
+            const newSetData = action.data;
+
+            const setHash = {};
+            transmogSetList.forEach((set) => {
+                setHash[set.setId] = set;
+            });
+
+            newSetData.forEach((set) => {
+                setHash[set.setId] = set;
+                Object.values(constants.MOG_SLOTS).forEach((slotNumber) => {
+                    const visualID = set[slotNumber];
+                    if (!workingVisualMetaHash[visualID]) workingVisualMetaHash[visualID] = {};
+                    workingVisualMetaHash[visualID].isAssigned = true;
                 });
             });
+
+            const newSetList = Object.values(setHash);
+
             return {
                 ...state,
-                visualMetaHash,
-                transmogSetList: action.data
+                visualMetaHash: workingVisualMetaHash,
+                transmogSetList: newSetList
             };
+        }
 
-        case actionTypes.ADD_VISUAL_TO_SET:
-            transmogSetList = [...state.transmogSetList];
-            visualMetaHash = { ...state.visualMetaHash };
+        case actionTypes.ADD_VISUAL_TO_SET: {
+            const workingTransmogSetList = [...state.transmogSetList];
+            const workingVisualMetaHash = { ...state.visualMetaHash };
             
-            setIndex = transmogSetList.findIndex(set => set.setId === action.data.changingSet);
+            const { changingSet, slot, sourceID } = action.data;
 
-            if (transmogSetList[setIndex].visuals) {
-                transmogSetList[setIndex].visuals.push(action.data.visualID);
-            } else {
-                transmogSetList[setIndex].visuals = [action.data.visualID];
-            }
+            const { visualID, name } = state.sourceIDHash[sourceID];
+            
+            const setIndex = workingTransmogSetList.findIndex(set => (
+                set.setId === changingSet));
 
-            visualMetaHash[action.data.visualID].isAssigned = true;
+            workingTransmogSetList[setIndex][slot] = visualID;
 
-            return {
-                ...state,
-                transmogSetList
-            };
-
-        case actionTypes.REMOVE_VISUAL_FROM_SET:
-            transmogSetList = [...state.transmogSetList];
-            visualMetaHash = { ...state.visualMetaHash };
-
-            setIndex = transmogSetList.findIndex(set => set.setId === action.data.changingSet);
-            visualIndex = transmogSetList[setIndex].visuals.findIndex(visualID => visualID === action.data.visualID);
-            if (visualIndex > -1) {
-                transmogSetList[setIndex].visuals.splice(visualIndex, 1);
-                visualMetaHash[action.data.visualID].isAssigned = false;
-            }
+            workingVisualMetaHash[visualID].name = name;
+            workingVisualMetaHash[visualID].isAssigned = true;
 
             return {
                 ...state,
-                visualMetaHash,
-                transmogSetList
+                transmogSetList: workingTransmogSetList,
+                visualMetaHash: workingVisualMetaHash
             };
-          
+        }
+
+        case actionTypes.RENAME_TRANSMOG_SET: {
+            const workingTransmogSetList = [...state.transmogSetList];
+
+            const { changingSet, newName } = action.data;
+            
+            const setIndex = workingTransmogSetList.findIndex(set => (
+                set.setId === changingSet));
+
+            workingTransmogSetList[setIndex].name = newName;
+
+            return {
+                ...state,
+                transmogSetList: workingTransmogSetList
+            };
+        }
+
+        case actionTypes.REMOVE_VISUAL_FROM_SET: {
+            const workingTransmogSetList = [...state.transmogSetList];
+            const workingVisualMetaHash = { ...state.visualMetaHash };
+            const { changingSet, slot, visualID } = action.data;
+
+            const setIndex = workingTransmogSetList.findIndex(set => (
+                set.setId === changingSet));
+
+            workingTransmogSetList[setIndex][slot] = null;
+            workingVisualMetaHash[visualID].isAssigned = false;
+
+            return {
+                ...state,
+                visualMetaHash: workingVisualMetaHash,
+                transmogSetList: workingTransmogSetList
+            };
+        }
+        
+        case actionTypes.ADD_STATE: {
+            const stateClone = { ...state };
+            stateClone[action.data.key] = action.data.value;
+
+            return stateClone;
+        }
+
         default:
             return state;
     }

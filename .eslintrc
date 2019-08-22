@@ -20,6 +20,7 @@
         "comma-dangle": "off",
         "indent": "off",
         "no-trailing-spaces": "off",
-        "object-curly-newline": ["error", { "multiline": true }]
+        "react/jsx-curly-newline": { "multiline": "consistent", "singleline": "consistent" },
+        "max-len": ["warn", { "code": 120 }]
     }
 }

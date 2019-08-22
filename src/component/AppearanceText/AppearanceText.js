@@ -4,38 +4,42 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ReactTooltip from 'react-tooltip';
+import constants from '../../constants';
+
 import './AppearanceText.css';
 
 const AppearanceText = (props) => {
   const {
     visualMetaForSlot,
     categoryID,
-    fetchNameForItem,
     navigateToVisualEdit,
     removeVisualFromSet,
-    actions,
+    showEditButtons,
+    showEmptySlots,
     emptyClick,
     tabIndex,
   } = props;
 
- 
-  if (Object.keys(visualMetaForSlot).length === 0) {
+  if (!visualMetaForSlot || !visualMetaForSlot.visualID) {
     return (
-      <div className="row">
-        <div 
+      <div
+        className="row"
+        style={(showEmptySlots) ? { display: 'block' } : { display: 'none' }}
+      >
+        <div
           className="col-12"
           role="button"
           onClick={() => emptyClick()}
           onKeyPress={() => { }}
           tabIndex={tabIndex}
         >
-          {`${categoryID}:`}
+          {`${constants.CATEGORY[categoryID]}:`}
         </div>
       </div>
     );
   }
 
-    const handleKeyPress = (event) => {
+  const handleKeyPress = (event) => {
     // TODO: Implement keyboard accessibility
     console.log(`Key pressed: '${event.key}'`);
   };
@@ -46,7 +50,6 @@ const AppearanceText = (props) => {
     tooltip = (
       <ReactTooltip id={`visual${visualMetaForSlot.visualID}`} place="right" type="dark" effect="float">
         {visualMetaForSlot.sources.map((source) => {
-          if (!source.name) fetchNameForItem(source.sourceID);
           const itemCollectedState = source.isCollected ? 'collected' : '';
           return (
             <div key={source.sourceID} className={itemCollectedState}>
@@ -57,6 +60,7 @@ const AppearanceText = (props) => {
       </ReactTooltip>
     );
   }
+
   return (
     <div
       data-tip
@@ -66,12 +70,12 @@ const AppearanceText = (props) => {
       {tooltip}
       <div className="row">
         <div className="col-3">
-          {`${categoryID}:`}
+          {`${constants.CATEGORY[categoryID]}:`}
         </div>
         <div className={visualCollectedState}>
           {visualMetaForSlot.name}
         </div>
-        <div style={actions ? { display: 'block' } : { display: 'none' }}>
+        <div style={showEditButtons ? { display: 'block' } : { display: 'none' }}>
           <button
             type="button"
             className="invisible-button"
@@ -83,7 +87,7 @@ const AppearanceText = (props) => {
               className="rename-appearance"
               aria-label="change appearance name"
             >
-                &nbsp;⥃
+              &nbsp;⥃
             </span>
           </button>
           <button
@@ -97,7 +101,7 @@ const AppearanceText = (props) => {
               className="rename-appearance"
               aria-label="change appearance name"
             >
-                &nbsp;⊗
+              &nbsp;⊗
             </span>
           </button>
         </div>
@@ -107,19 +111,21 @@ const AppearanceText = (props) => {
 };
 
 AppearanceText.propTypes = {
-  actions: PropTypes.bool.isRequired,
-  tabIndex: PropTypes.number,
+  showEditButtons: PropTypes.bool,
+  showEmptySlots: PropTypes.bool,
+  tabIndex: PropTypes.string,
   categoryID: PropTypes.string.isRequired,
   visualMetaForSlot: PropTypes.object,
   emptyClick: PropTypes.func.isRequired,
-  fetchNameForItem: PropTypes.func.isRequired,
   removeVisualFromSet: PropTypes.func.isRequired,
   navigateToVisualEdit: PropTypes.func.isRequired,
 };
 
 AppearanceText.defaultProps = {
-  visualMetaForSlot: {},
-  tabIndex: null
+  visualMetaForSlot: null,
+  tabIndex: null,
+  showEditButtons: true,
+  showEmptySlots: true,
 };
 
 export default AppearanceText;

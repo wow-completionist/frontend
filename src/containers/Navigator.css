@@ -7,13 +7,13 @@ body {
     width: 100%;
     text-align: center;
     background-color: darkred;
-    height: 2.2rem;
+    height: 2.5rem;
     padding-top: .2rem;
 }
 
 .Navigator li {
     display: inline-block;
-    margin: 2px;
+    margin: 4px;
 }
 
 .Navigator a {
@@ -34,6 +34,19 @@ body {
 .Navigator a.my-active-link {
     background-color: goldenrod;
     color: black;
+}
+
+.Navigator a.battle-net-login-button {
+    background-color: slategray;
+    color: white;
+}
+
+.Navigator a.logged-in-button {
+    color: white;
+    background-color: rgb(49, 88, 215);
+    border-radius: 5px;
+    padding: .2rem .5rem;
+    box-shadow: 1pt 1pt 0 2pt grey;
 }
 
 .short {

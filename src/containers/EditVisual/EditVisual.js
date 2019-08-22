@@ -1,61 +1,61 @@
+/* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+
 import * as actionTypes from '../../store/actions';
 
 import './EditVisual.css';
 
-import axios from 'axios';
 
 class EditVisual extends Component {
-    state = { visualId: null, }
+  constructor(props) {
+    super(props);
+    this.state = { visualID: null };
+  }
+    
 
     componentDidMount() {
-        this.setState({ visualId: this.props.match.params.visualId });
+      const { match } = this.props;
+      if (match.params && match.params.visualID) {
+        this.setState({ visualID: match.params.visualID });
+      }
     }
 
-    setSelected = (type, value) => {
-        if (type === 'set') {
-            this.setState({ selectedSet: value });
-        } else if (type === 'visual') {
-            this.setState({ selectedVisualId: value });
-        }
-    }
+    updateVisualMetaName = async (sourceID) => {
+      const { visualID } = this.state;
+      const { sourceIDHash, visualMetaHash, updateVisualMetaData, history } = this.props;
 
-    fetchNameForItem = async (sourceId) => {
-        const result = await axios.post(`http://lvh.me:4000/item/fetchName/${sourceId}`);
+      const newName = sourceIDHash[sourceID].name;
+      
+      try {
+        const updateObject = { ...visualMetaHash[visualID] };
+        updateObject.name = newName;
+        delete updateObject.sources;
 
-        const fullSourceIDList = Object.assign({}, this.props.fullSourceIDList);
-        fullSourceIDList[sourceId].name = result.data.name;
-        this.props.addScrapedData(fullSourceIDList);
-    }
-
-    updateVisualMetaName = async (sourceId) => {
-        const newPrimary = this.props.fullSourceIDList[sourceId];
-        const oldPrimary = Object.values(this.props.fullSourceIDList)
-            .filter(source => source.visualID === newPrimary.visualID && source.isPrimary);
+        const result = await axios.post(`http://lvh.me:4000/visuals/${visualID}`, updateObject);
+        console.log('--> axios visualMeta update result :', result);
         
-        // Prevent spamming same change
-        if (oldPrimary.length === 1 && oldPrimary[0].sourceID === sourceId) return;
-
-        const changeSet = {};
-        oldPrimary.forEach((source) => {
-            source.isPrimary = false;
-            changeSet[source.sourceID] = source;
-        });
-        newPrimary.isPrimary = true;
-        changeSet[sourceId] = newPrimary;
-        
-        const result = await axios.post('http://lvh.me:4000/dump/', changeSet);
-        console.log('--> updateVisualMetaName result :', result.data);
-        this.props.addScrapedData(changeSet);
+        const newVisualMeta = visualMetaHash[visualID];
+        newVisualMeta.name = newName;
+        updateVisualMetaData([newVisualMeta]);
+        history.goBack();
+      } catch (err) {
+        console.log(`Error updating visualMeta for visualID:${visualID}`);
+      }
     }
 
     render() {
+      const { visualID } = this.state;
+      const { visualMetaHash } = this.props;
         let visualMeta = '';
         let items = '';
-        if (this.props.visualMetaHash[this.state.visualId]) {
-            const visual = this.props.visualMetaHash[this.state.visualId];
+        if (visualMetaHash && visualMetaHash[visualID]) {
+            const visual = visualMetaHash[visualID];
+            const sources = (Array.isArray(visual.sources)) ? visual.sources : [];
+
             visualMeta = (
               <div className="visual-meta">
                 <div className="visual-name">
@@ -76,7 +76,7 @@ class EditVisual extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {visual.sources.map((row, i) => (
+                  {sources.map((row) => (
                     <tr 
                       key={row.sourceID} 
                       onClick={() => this.updateVisualMetaName(row.sourceID)}
@@ -84,12 +84,11 @@ class EditVisual extends Component {
                       <td>{row.name}</td>
                       <td>{row.itemID}</td>
                     </tr>
-                        ))}
+                  ))}
                 </tbody>
               </table>
             );
         }
-
 
         return (
           <div className="container">
@@ -110,11 +109,25 @@ class EditVisual extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-        fullSourceIDList: state.fullSourceIDList,
-        visualMetaHash: state.visualMetaHash
-    });
+EditVisual.propTypes = {
+  sourceIDHash: PropTypes.object.isRequired,
+  visualMetaHash: PropTypes.object.isRequired,
+  updateVisualMetaData: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
+  match: PropTypes.object.isRequired,
+};
 
-const mapDispatchToProps = dispatch => ({ addScrapedData: newData => dispatch({ type: actionTypes.ADD_SCRAPED_DATA, data: newData }) });
+const mapStateToProps = (state) => ({
+    sourceIDHash: state.sourceIDHash,
+    visualMetaHash: state.visualMetaHash,
+    userData: state.userData,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  updateVisualMetaData: (visualMetaData) => dispatch({
+    type: actionTypes.UPDATE_VISUAL_META_DATA,
+    data: visualMetaData 
+  }),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(EditVisual));

@@ -1,0 +1,15 @@
+.Navigator a.basic-link {
+    background-color: inherit !important;
+    color: rgb(0, 174, 255) !important;
+    margin: 0;
+    margin-left: 3px;
+    padding: 0;
+}
+
+.add-data-button {
+    margin-top: 1rem;
+    padding: .5rem;
+    background-color: green;
+    color: white;
+    border-radius: 5px;
+}

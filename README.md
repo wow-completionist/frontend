@@ -1,68 +1,73 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Completionist.Guru Front End
 
-## Available Scripts
+## Reorganizing the data
 
-In the project directory, you can run:
+I'm attempting to flatten the data. Dictionaries are easy to use but harder to maintain. This trade off might reduce the fron end's speed, but increase consistency and ease of use.
 
-### `npm start`
+### The big list: Sources
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Sources need to be as close to the in game data as possible.
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+Original data shape:
+```
+{
+    "sourceType":2,
+    "invType":8,
+    "visualID":10062,
+    "isCollected":true,
+    "sourceID":18701,
+    "useError":"Level 58 required to use this appearance.",
+    "isHideVisual":false,
+    "itemID":39176,
+    "minLevel":58,
+    "itemModID":0,
+    "categoryID":10,
+    "name":"Kilt of Deific Torment",
+    "quality":3
+}
+```
 
-### `npm test`
+### VisualMeta
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Currently contains the data that is used to represent the collection of sources which all have the same visualID.
 
-### `npm run build`
+Possibly could be reduced to simply the sourceID which is decided to be representative.
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+{
+    visualID: Number,
+    categoryID: String,
+    isHideVisual: Boolean,
+    name: String
+}
+```
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+### TransmogSetList
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+An array of transmog sets as defined by site users. Should reflect both official Tier Sets and zone sets (quest drops usually grouped by name).
+The set will contain a list of visualIDs for the gear that goes together.
 
-### `npm run eject`
+Possibly convert from an array to a slot:visualID format.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```
+{
+    "setId" : "b9621eb5-aab2-4705-83e1-e07a20c03b8b",
+    "name" : "Kul Tiras Questing (Stormsong Valley Recolor)",
+    "group" : "Cloth",
+    "expansion" : "8.0",
+    "visuals" : [ 
+        35996, 
+        35992, 
+        35997, 
+        35990, 
+        35995, 
+        35994, 
+        36665, 
+        35993, 
+        35991
+    ],
+}
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### userData
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify

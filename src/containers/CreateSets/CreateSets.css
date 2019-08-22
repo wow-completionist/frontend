@@ -9,11 +9,14 @@
     margin-bottom: 0;
 }
 
-button {
+.add-set-button {
     margin-top: 2.3rem;
     padding: .5rem;
     background-color: green;
     color: white;
     border-radius: 5px;
-    
+}
+
+.green {
+    background-color: rgb(145, 237, 145);
 }
