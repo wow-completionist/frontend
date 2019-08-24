@@ -13,10 +13,13 @@ import constants from '../../constants';
 import './CreateSets.css';
 
 class CreateSets extends Component {
-  state = {
-    newSetNameText: '',
-    newSetGroupText: '',
-    newSetExpansionText: '',
+  constructor(props) {
+    super(props);
+    this.state = {
+      newSetNameText: '',
+      newSetGroupText: '',
+      newSetExpansionText: '',
+    };
   }
 
   newSetNameFieldHandler = (event) => {
@@ -173,7 +176,7 @@ class CreateSets extends Component {
                 <input id="newSetName" className="form-control" placeholder="Example: Warmongering Gladiator's Plate" onChange={this.newSetNameFieldHandler} value={newSetNameText} />
               </label>
             </div>
-            <div className="col-md-1">
+            <div className="col-md-2">
               <button type="submit" className="add-set-button" onClick={() => this.newSetClick()}>New Set</button>
             </div>
           </div>
