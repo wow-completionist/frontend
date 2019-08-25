@@ -11,13 +11,13 @@ class LoginSuccess extends Component {
   async componentDidMount() {
     const {
       updateAppState, 
-      loadUserCollection,
+      updateUserCollection,
       history,
       location
     } = this.props;
 
     const values = queryString.parse(location.search);
-    
+    console.log('--> values :', values);
     const incomingUserData = {};
     const { 
       access_token: battleNetToken,
@@ -30,7 +30,9 @@ class LoginSuccess extends Component {
     incomingUserData.battleTag = decodeURIComponent(battleTag);
     
     try {
-      const characterResult = await axios(`https://us.api.blizzard.com/wow/user/characters?access_token=${battleNetToken}`);
+      const characterResult = await axios({
+        url: `https://us.api.blizzard.com/wow/user/characters?access_token=${battleNetToken}`
+      });
 
       updateAppState('userCharacterData', characterResult.data.characters);
 
@@ -42,23 +44,29 @@ class LoginSuccess extends Component {
     axios.defaults.headers.common.id = userId;
 
     try {
-      const userResult = await axios(`http://lvh.me:4000/user/${userId}`);
+      const userResult = await axios({
+        url: `http://lvh.me:4000/user/${userId}`,
+        headers: {
+          Authorization: `Bearer ${battleNetToken}`
+        }
+      });
       if (userResult.data) {
         incomingUserData.collected = userResult.data.collected;
         incomingUserData.role = userResult.data.role;
       }
+      
+      updateAppState('userData', incomingUserData);
+      db.putData('userData', incomingUserData);
+      updateUserCollection(incomingUserData.collected);
+  
+      if (incomingUserData.collected) {
+        history.push('/');
+      } else {
+        history.push('/user'); // new users prompt to add collection data
+      }
     } catch (err) {
       console.log('--> user data request err :', err);
-    }
-    
-    updateAppState('userData', incomingUserData);
-    db.putData('userData', incomingUserData);
-    loadUserCollection(incomingUserData.collected);
-
-    if (incomingUserData.collected) {
       history.push('/');
-    } else {
-      history.push('/user'); // new users prompt to add collection data
     }
   }
 
@@ -76,14 +84,13 @@ LoginSuccess.propTypes = {
   history: PropTypes.object.isRequired,
   updateAppState: PropTypes.func.isRequired,
   location: PropTypes.object.isRequired,
-  userData: PropTypes.object.isRequired,
-  loadUserCollection: PropTypes.func.isRequired,
+  updateUserCollection: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({ userData: state.userData, });
 
 const mapDispatchToProps = (dispatch) => ({ 
-  loadUserCollection: (collected) => dispatch({
+  updateUserCollection: (collected) => dispatch({
     type: actionTypes.ADD_USER_DATA,
     data: collected
   }),

@@ -27,7 +27,7 @@ class Scraper extends Component {
 
   saveData = async (newList) => {
     try {
-      await axios.post('http://lvh.me:4000/dump', { data: newList });
+      await axios.post('http://lvh.me:4000/import', { data: newList });
     } catch (err) {
       console.log('Axios Error');
       console.log(err);
@@ -159,7 +159,6 @@ class Scraper extends Component {
 Scraper.propTypes = {
   sourceList: PropTypes.array.isRequired,
   addScrapedData: PropTypes.func.isRequired,
-  // userData: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({

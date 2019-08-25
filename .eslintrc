@@ -21,6 +21,7 @@
         "indent": "off",
         "no-trailing-spaces": "off",
         "react/jsx-curly-newline": { "multiline": "consistent", "singleline": "consistent" },
-        "max-len": ["warn", { "code": 120 }]
+        "max-len": ["warn", { "code": 120 }],
+        "react/forbid-prop-types": "off"
     }
 }

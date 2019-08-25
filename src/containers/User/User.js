@@ -34,7 +34,7 @@ const User = (props) => {
   let output;
   
   if (userData && userData.characterData) {
-    output = userData.characterData.sort(toonOrder).slice(0, 10).map(toon => (
+    output = userData.characterData.sort(toonOrder).slice(0, 10).map((toon) => (
       <tr
         key={Math.random().toString(36).replace(/[^a-z]+/g, '')}
       >
@@ -87,7 +87,7 @@ User.propTypes = { userData: PropTypes.object.isRequired, };
 
 // User.defaultProps = { userData: {} };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   transmogSetList: state.transmogSetList,
   userCharacterData: state.userCharacterData,
   userData: state.userData,

@@ -88,7 +88,7 @@ class EditSets extends Component {
 
   renameSet = async (e) => {
     e.preventDefault();
-    window.removeEventListener('keydown');
+    window.removeEventListener('keydown', this.keyDownHandler);
 
     const { updateSetName } = this.props;
     const { newName } = this.state;

@@ -204,7 +204,7 @@ class Navigator extends Component {
           <Route 
             exact 
             path="/login_success" 
-            render={routeProps => (
+            render={(routeProps) => (
               <LoginSuccess 
                 {...routeProps}
               />
@@ -237,20 +237,20 @@ Navigator.propTypes = {
 
 Navigator.defaultProps = { history: {}, };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   sourceList: state.sourceList,
   transmogSetList: state.transmogSetList,
   visualMetaHash: state.visualMetaHash,
   userData: state.userData,
 });
 
-const mapDispatchToProps = dispatch => ({
-  loadSetData: setData => dispatch({ type: actionTypes.LOAD_TRANSMOG_SETS, data: setData }),
-  updateVisualMetaData: visualMetaData => dispatch({
+const mapDispatchToProps = (dispatch) => ({
+  loadSetData: (setData) => dispatch({ type: actionTypes.LOAD_TRANSMOG_SETS, data: setData }),
+  updateVisualMetaData: (visualMetaData) => dispatch({
     type: actionTypes.UPDATE_VISUAL_META_DATA,
     data: visualMetaData 
   }),
-  addSourceData: newData => dispatch({ type: actionTypes.ADD_SOURCE_DATA, data: newData }),
+  addSourceData: (newData) => dispatch({ type: actionTypes.ADD_SOURCE_DATA, data: newData }),
   updateAppState: (key, value) => dispatch({ 
     type: actionTypes.ADD_STATE, 
     data: { key, value } 

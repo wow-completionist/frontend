@@ -12,7 +12,10 @@ import * as actionTypes from '../../store/actions';
 import './CollectionInput.css';
 
 class CollectionInput extends Component {
-  state = { input: '' }
+  constructor(props) {
+    super(props);
+    this.state = { input: '' };
+  }
 
   rawDataFieldHandler = (event) => {
     this.setState({ input: event.target.value });
@@ -22,7 +25,7 @@ class CollectionInput extends Component {
     const { input } = this.state;
     const { loadUserCollection, userData } = this.props;
     const sourceArray = input.replace(/['"]+/g, '').split(':');
-    const collected = sourceArray.filter(s => s !== '').map(s => parseInt(s, 10));
+    const collected = sourceArray.filter((s) => s !== '').map((s) => parseInt(s, 10));
     userData.collected = collected;
     loadUserCollection(userData);
     db.putData('userData', userData);
@@ -62,15 +65,17 @@ class CollectionInput extends Component {
         </div>
         <div className="col">
           <div className="form-group">
-            <label htmlFor="rawInput">Input:</label>
-            <textarea 
-              id="rawInput" 
-              className="form-control"
-              rows="5"
-              placeholder="Paste Data Here"
-              onChange={this.rawDataFieldHandler}
-              value={input}
-            />
+            <label htmlFor="rawInput">
+              Input:
+              <textarea 
+                id="rawInput" 
+                className="form-control"
+                rows="5"
+                placeholder="Paste Data Here"
+                onChange={this.rawDataFieldHandler}
+                value={input}
+              />
+            </label>
             <button 
               type="button"
               onClick={() => this.addDataClick()}
@@ -90,10 +95,10 @@ CollectionInput.propTypes = {
   loadUserCollection: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({ userData: state.userData });
+const mapStateToProps = (state) => ({ userData: state.userData });
 
-const mapDispatchToProps = dispatch => ({
-  loadUserCollection: collected => dispatch({
+const mapDispatchToProps = (dispatch) => ({
+  loadUserCollection: (collected) => dispatch({
     type: actionTypes.ADD_USER_DATA,
     data: collected
   }),

@@ -68,7 +68,7 @@ const updateVisualMetaHash = (sourceList, visualMetaHash, userCollectedSources =
             workingVisualHash[visualID].sources = [source];
         } else {
             const dupe = workingVisualHash[visualID]
-                .sources.find(i => i.sourceID === source.sourceID);
+                .sources.find((i) => i.sourceID === source.sourceID);
             if (!dupe) {
                 workingVisualHash[visualID].sources.push(source);
                 workingVisualHash[visualID].sources.sort((a, b) => ((b.name > (a.name || '')) ? 1 : -1));
@@ -128,7 +128,7 @@ const reducer = (state = initialState, action) => {
 
         case actionTypes.ADD_USER_DATA: {
             const workingSourceHash = { ...state.sourceIDHash };
-            const workingUserData = Object.assign({}, state.userData);
+            const workingUserData = { ...state.userData };
 
             console.log('--> ADD_USER_DATA action.data :', action.data);
             workingUserData.collected = action.data;
@@ -156,11 +156,11 @@ const reducer = (state = initialState, action) => {
         case actionTypes.UPDATE_VISUAL_META_DATA: {
             const workingVisualMetaHash = { ...state.visualMetaHash };
             action.data.forEach((visualMeta) => {
-                const combined = Object.assign(
-                    {}, 
-                    workingVisualMetaHash[visualMeta.visualID], 
-                    visualMeta
-                );
+                const combined = {
+                     
+                    ...workingVisualMetaHash[visualMeta.visualID], 
+                    ...visualMeta
+                };
                 workingVisualMetaHash[visualMeta.visualID] = combined;
             });
 
@@ -215,7 +215,7 @@ const reducer = (state = initialState, action) => {
 
             const { visualID, name } = state.sourceIDHash[sourceID];
             
-            const setIndex = workingTransmogSetList.findIndex(set => (
+            const setIndex = workingTransmogSetList.findIndex((set) => (
                 set.setId === changingSet));
 
             workingTransmogSetList[setIndex][slot] = visualID;
@@ -235,7 +235,7 @@ const reducer = (state = initialState, action) => {
 
             const { changingSet, newName } = action.data;
             
-            const setIndex = workingTransmogSetList.findIndex(set => (
+            const setIndex = workingTransmogSetList.findIndex((set) => (
                 set.setId === changingSet));
 
             workingTransmogSetList[setIndex].name = newName;
@@ -251,7 +251,7 @@ const reducer = (state = initialState, action) => {
             const workingVisualMetaHash = { ...state.visualMetaHash };
             const { changingSet, slot, visualID } = action.data;
 
-            const setIndex = workingTransmogSetList.findIndex(set => (
+            const setIndex = workingTransmogSetList.findIndex((set) => (
                 set.setId === changingSet));
 
             workingTransmogSetList[setIndex][slot] = null;
