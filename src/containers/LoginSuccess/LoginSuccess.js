@@ -18,7 +18,7 @@ class LoginSuccess extends Component {
     } = this.props;
 
     const values = queryString.parse(location.search);
-    console.log('--> values :', values);
+
     const incomingUserData = {};
     const { 
       access_token: battleNetToken,
@@ -45,12 +45,10 @@ class LoginSuccess extends Component {
     }
 
     axios.defaults.headers.common.id = userId;
+    axios.defaults.headers.common.authorization = `Bearer ${battleNetToken}`;
 
     try {
-      const userResult = await axios({
-        url: `${config.SITE_BACKEND}/user/${userId}`,
-        headers: { Authorization: `Bearer ${battleNetToken}` }
-      });
+      const userResult = await axios({ url: `${config.SITE_BACKEND}/user/${userId}` });
       if (userResult.data) {
         incomingUserData.collected = userResult.data.collected;
         incomingUserData.role = userResult.data.role;
