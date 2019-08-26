@@ -128,10 +128,9 @@ const reducer = (state = initialState, action) => {
 
         case actionTypes.ADD_USER_DATA: {
             const workingSourceHash = { ...state.sourceIDHash };
-            const workingUserData = { ...state.userData };
+            const workingUserData = { ...state.userData, ...action.data };
 
-            console.log('--> ADD_USER_DATA action.data :', action.data);
-            workingUserData.collected = action.data;
+            console.log('--> ADD_USER_DATA workingUserData :', workingUserData);
 
             workingUserData.collected.forEach((sourceID) => {
                 if (workingSourceHash[sourceID]) {
