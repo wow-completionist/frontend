@@ -8,7 +8,7 @@ import axios from 'axios';
 
 import * as db from '../../db';
 import * as actionTypes from '../../store/actions';
-
+import config from '../../config';
 import './CollectionInput.css';
 
 class CollectionInput extends Component {
@@ -31,7 +31,7 @@ class CollectionInput extends Component {
     db.putData('userData', userData);
 
     try {
-      await axios.post(`http://lvh.me:4000/collected/${userData.userId}`, collected);
+      await axios.post(`${config.SITE_BACKEND}/collected/${userData.userId}`, collected);
       this.setState({ input: '' });
     } catch (err) {
       console.log('Axios error saving collected');

@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import * as actionTypes from '../../store/actions';
 import AppearanceText from '../../component/AppearanceText/AppearanceText';
 import constants from '../../constants';
+import config from '../../config';
 
 import './CreateSets.css';
 
@@ -63,7 +64,7 @@ class CreateSets extends Component {
 
   saveSet = async (newSet) => {
     try {
-      const result = await axios.post('http://lvh.me:4000/set', { data: newSet });
+      const result = await axios.post(`${config.SITE_BACKEND}/set`, { data: newSet });
       console.log('--> result.data :', JSON.stringify(result.data, null, 2));
       return result.data;
     } catch (err) {

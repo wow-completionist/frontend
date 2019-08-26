@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import * as actionTypes from '../../store/actions';
 // import constants from '../../constants';
+import config from '../../config';
 
 import './Scraper.css';
 
@@ -27,7 +28,7 @@ class Scraper extends Component {
 
   saveData = async (newList) => {
     try {
-      await axios.post('http://lvh.me:4000/import', { data: newList });
+      await axios.post(`${config.SITE_BACKEND}/import`, { data: newList });
     } catch (err) {
       console.log('Axios Error');
       console.log(err);

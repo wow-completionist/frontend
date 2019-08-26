@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 
 import * as actionTypes from '../../store/actions';
+import config from '../../config';
 
 import './EditVisual.css';
 
@@ -35,7 +36,7 @@ class EditVisual extends Component {
         updateObject.name = newName;
         delete updateObject.sources;
 
-        const result = await axios.post(`http://lvh.me:4000/visuals/${visualID}`, updateObject);
+        const result = await axios.post(`${config.SITE_BACKEND}/visuals/${visualID}`, updateObject);
         console.log('--> axios visualMeta update result :', result);
         
         const newVisualMeta = visualMetaHash[visualID];

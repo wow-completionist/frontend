@@ -22,6 +22,7 @@
         "no-trailing-spaces": "off",
         "react/jsx-curly-newline": { "multiline": "consistent", "singleline": "consistent" },
         "max-len": ["warn", { "code": 120 }],
-        "react/forbid-prop-types": "off"
+        "react/forbid-prop-types": "off",
+        "object-curly-newline": ["error", { "multiline": true }]
     }
 }

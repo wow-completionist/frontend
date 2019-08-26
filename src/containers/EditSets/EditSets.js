@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 import AppearanceText from '../../component/AppearanceText/AppearanceText';
 import * as actionTypes from '../../store/actions';
 import constants from '../../constants';
+import config from '../../config';
+
 import './EditSets.css';
 
 class EditSets extends Component {
@@ -46,7 +48,7 @@ class EditSets extends Component {
     } else if (type === 'visual' && selectedSlot) {
       const { sourceID, visualID } = value;
 
-      const result = await axios.post(`http://lvh.me:4000/set/${setId}`, { visualID, slot: selectedSlot });
+      const result = await axios.post(`${config.SITE_BACKEND}/set/${setId}`, { visualID, slot: selectedSlot });
       console.log(`--> adding visual ID ${visualID} to slot ${selectedSlot}. Result :`, result);
 
       await this.updateVisualMetaName(sourceID, visualID);
@@ -66,7 +68,7 @@ class EditSets extends Component {
       updateObject.name = newName;
       delete updateObject.sources;
 
-      const result = await axios.post(`http://lvh.me:4000/visuals/${visualID}`, updateObject);
+      const result = await axios.post(`${config.SITE_BACKEND}/visuals/${visualID}`, updateObject);
       console.log('--> axios visualMeta update result :', result);
       
       const newVisualMeta = visualMetaHash[visualID];
@@ -100,7 +102,7 @@ class EditSets extends Component {
 
     const { setId } = this.state;
 
-    const result = await axios.post(`http://lvh.me:4000/set/${setId}`, { name: newName });
+    const result = await axios.post(`${config.SITE_BACKEND}/set/${setId}`, { name: newName });
     console.log(`--> Renaming set to ${newName}. Result :`, result);
 
     // Update data in reducer
@@ -120,7 +122,7 @@ class EditSets extends Component {
     const { removeVisualFromSet } = this.props;
 
     try {
-      await axios.delete(`http://lvh.me:4000/set/${setId}/slot/${slot}/visual/${visualID}`);
+      await axios.delete(`${config.SITE_BACKEND}/set/${setId}/slot/${slot}/visual/${visualID}`);
       removeVisualFromSet(setId, slot, visualID);
     } catch (err) {
       console.log('--> remove visual from set error :', err);

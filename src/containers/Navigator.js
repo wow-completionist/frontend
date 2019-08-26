@@ -14,6 +14,7 @@ import EditVisual from './EditVisual/EditVisual';
 import Scraper from './Scraper/Scraper';
 // import Login from './Login/Login';
 import LoginSuccess from './LoginSuccess/LoginSuccess';
+import config from '../config';
 
 import './Navigator.css';
 
@@ -47,7 +48,7 @@ class Navigator extends Component {
       }
 
       try {
-        result = await axios.get('http://lvh.me:4000/sets');
+        result = await axios.get(`${config.SITE_BACKEND}/sets`);
         db.putData('sets', result.data);
         console.log('-- Axios: set list updated --');
         loadSetData(result.data);
@@ -68,7 +69,7 @@ class Navigator extends Component {
       }
 
       try {
-        result = await axios.get('http://lvh.me:4000/visuals');
+        result = await axios.get(`${config.SITE_BACKEND}/visuals`);
         console.log('-- Axios: visuals updated --');
         db.putData('visuals', result.data);
         updateVisualMetaData(result.data);
@@ -88,7 +89,7 @@ class Navigator extends Component {
       }
       
       try {
-        result = await axios.get('http://lvh.me:4000/sources');
+        result = await axios.get(`${config.SITE_BACKEND}/sources`);
         console.log('-- Axios: sources updated --');
         if (result && result.data) {
           db.putData('sourceList', result.data);
@@ -198,7 +199,7 @@ class Navigator extends Component {
             path="/login"
             render={() => { 
               // send client browser to backend oauth page
-              window.location = 'http://localhost:4000/login'; 
+              window.location = `${config.SITE_BACKEND}/login`; 
             }}
           />
           <Route 

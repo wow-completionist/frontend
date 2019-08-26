@@ -6,6 +6,7 @@ import axios from 'axios';
 import queryString from 'query-string';
 import * as actionTypes from '../../store/actions';
 import * as db from '../../db';
+import config from '../../config';
 
 class LoginSuccess extends Component {
   async componentDidMount() {
@@ -30,8 +31,10 @@ class LoginSuccess extends Component {
     incomingUserData.battleTag = decodeURIComponent(battleTag);
     
     try {
-      const characterResult = await axios({
-        url: `https://us.api.blizzard.com/wow/user/characters?access_token=${battleNetToken}`
+      const blizzCharUrl = 'https://us.api.blizzard.com/wow/user/characters';
+      const characterResult = await axios({ 
+        url: blizzCharUrl,
+        params: { access_token: battleNetToken }
       });
 
       updateAppState('userCharacterData', characterResult.data.characters);
@@ -45,10 +48,8 @@ class LoginSuccess extends Component {
 
     try {
       const userResult = await axios({
-        url: `http://lvh.me:4000/user/${userId}`,
-        headers: {
-          Authorization: `Bearer ${battleNetToken}`
-        }
+        url: `${config.SITE_BACKEND}/user/${userId}`,
+        headers: { Authorization: `Bearer ${battleNetToken}` }
       });
       if (userResult.data) {
         incomingUserData.collected = userResult.data.collected;
